@@ -74,9 +74,11 @@ namespace SC.SimplSharp.Utilities
 
         protected override void UpdateSplusInformation()
         {
-            if (UpdateVtcInformation != null)
+            var handler = UpdateVtcInformation;
+
+            if (handler != null)
             {
-                UpdateVtcInformation(GetObject<VideoConference>(Info),
+                handler(GetObject<VideoConference>(Info),
                     (bool) Info["Enable"] ? (ushort) 1 : (ushort) 0);
             }
         }

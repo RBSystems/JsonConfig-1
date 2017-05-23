@@ -2,6 +2,13 @@
 
 namespace SC.SimplSharp.Utilities
 {
+    public class Environment
+    {
+        public bool Shades { get; set; }
+        public bool Lighting { get; set; }
+        public bool AutoSwitch { get; set; }
+    }
+
     public class Display
     {
         public string Name { get; set; }
@@ -17,17 +24,14 @@ namespace SC.SimplSharp.Utilities
         public ushort Input { get; set; }
         public ushort Enabled { get; set; }
         public string Name { get; set; }
+        public string ShareableSource { get; set; }
+        public string EnableSyncDetect { get; set; }
     }
 
     public class Switcher
     {
         public ushort Type { get; set; }
         public string IpAddress { get; set; }
-    }
-
-    public class Features
-    {
-        public bool AudioConference { get; set; }
     }
 
     public class Chromebox
@@ -70,6 +74,7 @@ namespace SC.SimplSharp.Utilities
         public ushort CommunicationsType { get; set; }
         public string IpAddress { get; set; }
         public ushort Port { get; set; }
+        public bool AudioConference { get; set; }
     }
 
     public class Configuration
@@ -77,27 +82,22 @@ namespace SC.SimplSharp.Utilities
         public int NumberOfDisplays { get; set; }
         public int NumberOfInputs { get; set; }
         public int NumberOfCameras { get; set; }
-        public bool Shades { get; set; }
-        public bool Lighting { get; set; }
-        public bool AutoSwitch { get; set; }
         public List<Display> Displays { get; set; }
         public List<Source> Sources { get; set; }
         public Switcher Switcher { get; set; }
-        public Features Features { get; set; }
-        //public Chromebox Chromebox { get; set; }
         public Dsp Dsp { get; set; }
         public VideoConference VideoConference { get; set; }
         public List<Camera> Cameras { get; set; } 
+        public Environment Environment { get; set; }
 
         public Configuration()
         {
+            Environment = new Environment();
             Displays = new List<Display>();
             Sources = new List<Source>();
             Cameras = new List<Camera>();
             VideoConference = new VideoConference();
             Switcher = new Switcher();
-            Features = new Features();
-            //Chromebox = new Chromebox();
             Dsp = new Dsp();
         }
     }

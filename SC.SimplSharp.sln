@@ -29,4 +29,8 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		BuildVersion_UseGlobalSettings = True
+		BuildVersion_BuildVersioningStyle = None.None.DayStamp.DeltaBaseDate
+	EndGlobalSection
 EndGlobal

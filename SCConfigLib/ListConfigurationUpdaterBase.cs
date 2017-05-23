@@ -18,7 +18,7 @@ namespace SC.SimplSharp.Utilities
 
         public UpdateCountDelegate UpdateCount { get; set; }
          
-        protected static JArray Info { get; set; }
+        protected JArray Info { get; set; }
 
         protected virtual void ConfigurationLoader_OnConfigurationSaved()
         {
@@ -69,7 +69,7 @@ namespace SC.SimplSharp.Utilities
             Info[index - 1] = JObject.FromObject(objectToUpdate);
         }
 
-        protected static void InitializeInfo(object o)
+        protected void InitializeInfo(object o)
         {
             if (Info == null)
             {
@@ -77,7 +77,7 @@ namespace SC.SimplSharp.Utilities
             }
         }
 
-        protected static T SaveChanges<T>()
+        protected T SaveChanges<T>()
         {
             var serializer = new JsonSerializer();
 
@@ -86,7 +86,7 @@ namespace SC.SimplSharp.Utilities
             return (T) serializer.Deserialize(new JTokenReader(Info), typeof (T));
         }
 
-        protected static T GetObject<T>(JToken jo)
+        protected T GetObject<T>(JToken jo)
         {
             var serializer = new JsonSerializer();
 

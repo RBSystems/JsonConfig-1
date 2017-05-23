@@ -1,118 +1,115 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using Crestron.SimplSharp;
+using Newtonsoft.Json.Linq;
 
 namespace SC.SimplSharp.Utilities
 {
-    public class SourceConfigurationUpdater
+    public class SourceConfigurationUpdater: ListConfigurationUpdaterBase
     {
-        private int _maxNumberOfSources;
-        public UpdateSourceInformationDelegate UpdateSourceInformation { get; set; }
-        public UpdateSourceCountDelegate UpdateSourceCount { get; set; }
-        public UpdateSourceEnabledCountDelegate UpdateSourceEnabledCount { get; set; }
-        public UpdateSelectedSourceDelegate UpdateSelectedSource { get; set; }
+        public delegate void UpdateSourceInformationDelegate(ushort index, Source item);
 
-        public delegate void UpdateSelectedSourceDelegate(Source source);
-        public delegate void UpdateSourceInformationDelegate(ushort id, Source source);
-        public delegate void UpdateSourceCountDelegate(ushort count);
-        public delegate void UpdateSourceEnabledCountDelegate(ushort count);
+        public delegate void UpdateSelectedItemDelegate(Source item);
 
         public SourceConfigurationUpdater()
         {
-            _maxNumberOfSources = 10;
-            ConfigurationLoader.OnConfigurationLoaded += ConfigurationLoader_OnConfigurationLoaded;
-            ConfigurationLoader.OnConfigurationSaved += ConfigurationLoader_OnConfigurationSaved;
+            MaxArrayLength = 16;
         }
 
-        private void ConfigurationLoader_OnConfigurationSaved()
+        public UpdateSelectedItemDelegate UpdateSelectedItem { get; set; }
+        public UpdateSourceInformationDelegate UpdateSourceInformation { get; set; }
+
+        public void Initialize(ushort maxSources)
         {
-            UpdateSPlusSourceCount((ushort) ConfigurationLoader.Config.Sources.Count);
-            UpdateSPlusEnabledSourceCount((ushort)ConfigurationLoader.Config.Sources.Count(s => s.Enabled == 1)); 
-            UpdateSPlusSourceInformation();
+            MaxArrayLength = maxSources;
         }
 
-        private void ConfigurationLoader_OnConfigurationLoaded()
+        protected override void ConfigurationLoader_OnConfigurationLoaded()
         {
-            UpdateSPlusSourceCount((ushort) ConfigurationLoader.Config.Sources.Count);
-            UpdateSPlusEnabledSourceCount((ushort)ConfigurationLoader.Config.Sources.Count(s => s.Enabled == 1));
-            UpdateSPlusSourceInformation();
+            Info = JArray.FromObject(ConfigurationLoader.Config.Sources);
+
+            base.ConfigurationLoader_OnConfigurationLoaded();
         }
 
-        public void Initialize(int maxNumberOfSources)
+        protected override void ConfigurationLoader_OnConfigurationSaved()
         {
-            _maxNumberOfSources = maxNumberOfSources;
+            Info = JArray.FromObject(ConfigurationLoader.Config.Sources);
+
+            base.ConfigurationLoader_OnConfigurationSaved();
         }
 
         public void AddSource(Source itemToAdd)
         {
-            if (ConfigurationLoader.Config.Sources.Count <= _maxNumberOfSources)
+            try
             {
-                ConfigurationLoader.Config.Sources.Add(itemToAdd);
-                ConfigurationLoader.Config.NumberOfInputs = ConfigurationLoader.Config.Sources.Count;
+                InitializeInfo(ConfigurationLoader.Config.Sources);
+
+                AddToArray(itemToAdd);
+
+                ConfigurationLoader.Config.Sources = SaveChanges<List<Source>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
+
+                UpdateSPlusInformation();
             }
-
-            ConfigurationLoader.ConfigChanged = true;
-
-            UpdateSPlusSourceCount( (ushort)ConfigurationLoader.Config.Sources.Count);
-            UpdateSPlusSourceInformation();
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error adding source. {0}", ex);
+            }
         }
 
         public void RemoveSource(ushort index)
         {
-            ConfigurationLoader.Config.Sources.RemoveAt(index - 1);
-            ConfigurationLoader.Config.NumberOfInputs = ConfigurationLoader.Config.Sources.Count;
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Sources);
 
-            ConfigurationLoader.ConfigChanged = true;
+                RemoveFromArray(index);
 
-            UpdateSPlusSourceCount((ushort) ConfigurationLoader.Config.Sources.Count);
-            UpdateSPlusSourceInformation();
+                ConfigurationLoader.Config.Sources = SaveChanges<List<Source>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
 
+                UpdateSPlusInformation();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error removing source. {0}", ex);
+            }
         }
 
         public void UpdateSource(ushort index, Source itemToUpdate)
         {
-            ConfigurationLoader.Config.Sources[index - 1] = itemToUpdate;
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Sources);
 
-            ConfigurationLoader.ConfigChanged = true;
+                UpdateEntry(index, itemToUpdate);
 
-            UpdateSPlusSourceInformation();
-        }
+                ConfigurationLoader.Config.Sources = SaveChanges<List<Source>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
 
-        public void SaveSourceConfiguration()
-        {
-            ConfigurationLoader.SaveConfigurationFile(ConfigurationLoader.FileName);
+                UpdateSPlusInformation();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error updating Source. {0}", ex);
+            }
         }
 
         public void GetSource(ushort index)
         {
-            if (UpdateSelectedSource != null)
+            if (UpdateSelectedItem != null)
             {
-                UpdateSelectedSource(ConfigurationLoader.Config.Sources[index -1]);
+                UpdateSelectedItem(GetObject<Source>(Info[index - 1]));
             }
         }
 
-        private void UpdateSPlusSourceCount(ushort count)
+        protected override void UpdateSPlusInformation()
         {
-            if (UpdateSourceCount != null)
-            {
-                UpdateSourceCount(count);
-            }
-        }
+            if (UpdateSourceInformation == null) return;
 
-        private void UpdateSPlusEnabledSourceCount(ushort count)
-        {
-            if (UpdateSourceEnabledCount != null)
+            for (ushort i = 0; i < Info.Count; i++)
             {
-                UpdateSourceEnabledCount(count);
-            }
-        }
-
-        private void UpdateSPlusSourceInformation()
-        {
-            for (var i = 0; i < ConfigurationLoader.Config.Sources.Count; i++)
-            {
-                if (UpdateSourceInformation != null)
-                {
-                    UpdateSourceInformation((ushort)(i + 1), ConfigurationLoader.Config.Sources[i]);
-                }
+                UpdateSourceInformation((ushort) (i + 1), GetObject<Source>(Info[i]));
             }
         }
     }

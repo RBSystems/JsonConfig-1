@@ -1,0 +1,109 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#DEFINE_CONSTANT MaxNumberOfDisplays 8
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+   #USER_SIMPLSHARP_LIBRARY "SCConfigLib"
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+ 
+ ANALOG_OUTPUT NumberOfDisplaysAnalog;
+ 
+
+ ANALOG_OUTPUT CommunicationsTypeAnalog[MaxNumberOfDisplays],IpPortAnalog[MaxNumberOfDisplays],OutputAnalog[MaxNumberOfDisplays],DisplayBrandAnalog[MaxNumberOfDisplays];
+ STRING_OUTPUT IpAddressText[MaxNumberOfDisplays];
+ 
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+ INTEGER_PARAMETER NumberOfDisplays;
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES NumberOfDisplays
+    propValidUnits = unitDecimal;
+    propDefaultUnit = unitDecimal;
+#END_PARAMETER_PROPERTIES
+
+               
+DisplayConfigurationUpdater configUpdater;
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+FUNCTION Initialize()
+{
+	configUpdater.Initialize(NumberOfDisplays);
+	RegisterDelegate(configUpdater,UpdateDisplayInformation,UpdateDisplayInformationCallback);
+	RegisterDelegate(configUpdater,UpdateCount,UpdateDisplayCountCallback);
+}
+
+callback FUNCTION UpdateDisplayInformationCallback(integer index, Display information)
+{
+	Display displayToShow;
+
+	displayToShow = information;
+
+	DisplayBrandAnalog[index] = displayToShow.Manufacturer;
+	CommunicationsTypeAnalog[index] = displayToShow.CommunicationsType;
+	IpAddressText[index] = displayToShow.IpAddress;
+	IpPortAnalog[index] = displayToShow.Port;
+	OutputAnalog[index] = displayToShow.Output;	
+}
+
+callback FUNCTION UpdateDisplayCountCallback(integer count)
+{
+	NumberOfDisplaysAnalog = count;
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+     WaitForInitializationComplete();
+
+	Initialize();
+}
+
+

@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SourceSelector.cs" />
-    <Compile Include="Switches\RouteProcessor.cs" />
+    <Compile Include="RouteProcessor.cs" />
     <Compile Include="Model\Delegates.cs" />
     <Compile Include="Model\Route.cs" />
     <Compile Include="RegistrationUtil.cs" />
@@ -86,4 +86,9 @@
   <PropertyGroup>
     <PostBuildEvent>rem  S# preparation will execute after these operations</PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties BuildVersion_UseGlobalSettings="True" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

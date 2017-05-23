@@ -1,67 +1,84 @@
 ﻿using System;
 using Crestron.SimplSharp;
+using Newtonsoft.Json.Linq;
 
 namespace SC.SimplSharp.Utilities
 {
-    public class SwitcherConfigurationUpdater
+    public class SwitcherConfigurationUpdater:BasicConfigurationUpdaterBase
     {
-        public delegate void UpdateSwitcherInformationDelegate(Switcher matrixSwitch);
+        public delegate void UpdateSwitcherInformationDelegate(Switcher information);
 
         public UpdateSwitcherInformationDelegate UpdateSwitcherInformation { get; set; }
 
-        public SwitcherConfigurationUpdater()
+        protected override void ConfigurationLoader_OnConfigurationSaved()
         {
-            ConfigurationLoader.OnConfigurationLoaded += ConfigurationLoader_OnConfigurationLoaded;
-            ConfigurationLoader.OnConfigurationSaved += ConfigurationLoader_OnConfigurationSaved;
+            Info = JObject.FromObject(ConfigurationLoader.Config.Switcher);
+
+            base.ConfigurationLoader_OnConfigurationSaved();
         }
 
-        void ConfigurationLoader_OnConfigurationSaved()
+        protected override void ConfigurationLoader_OnConfigurationLoaded()
         {
-            UpdateSplusSwitcherInformation();
+            Info = JObject.FromObject(ConfigurationLoader.Config.Switcher);
+
+            base.ConfigurationLoader_OnConfigurationLoaded();
         }
 
-        void ConfigurationLoader_OnConfigurationLoaded()
+        public override void SetStringValue(string property, string value)
         {
-            UpdateSplusSwitcherInformation();
-        }
-
-        public void UpdateSwitcherType(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Switcher.Type) return;
-
-            ConfigurationLoader.Config.Switcher.Type = value;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateSwitcherIpAddress(string value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Switcher.IpAddress) return;
-
-            ConfigurationLoader.Config.Switcher.IpAddress = value;
-
-            if (ConfigurationLoader.Config.Switcher.Type == 1)
+            try
             {
-                var consoleResponse = String.Empty;
+                InitializeInfo(ConfigurationLoader.Config.Switcher);
 
-                CrestronConsole.SendControlSystemCommand(String.Format("addp 50 {0} -p:{1}",value,InitialParametersClass.ApplicationNumber), ref consoleResponse);
+                Info[property] = value;
 
-                CrestronConsole.PrintLine(String.Format("IP Table Updated: {0}",consoleResponse));
+                ConfigurationLoader.Config.Switcher = SaveChanges<Switcher>();
             }
-
-            ConfigurationLoader.ConfigChanged = true;
-            ConfigurationLoader.RebootRequired = true;
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
         }
 
-        private void UpdateSplusSwitcherInformation()
+        public override void SetBoolValue(string property, ushort value)
         {
-            if (UpdateSwitcherInformation != null)
+            try
             {
-                UpdateSwitcherInformation(ConfigurationLoader.Config.Switcher);
+                InitializeInfo(ConfigurationLoader.Config.Switcher);
+
+                Info[property] = value > 0;
+
+                ConfigurationLoader.Config.Switcher = SaveChanges<Switcher>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        public override void SetUshortValue(string property, ushort value)
+        {
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Switcher);
+
+                Info[property] = value;
+
+                ConfigurationLoader.Config.Switcher = SaveChanges<Switcher>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        protected override void UpdateSplusInformation()
+        {
+            var handler = UpdateSwitcherInformation;
+
+            if (handler != null)
+            {
+                handler(GetObject<Switcher>(Info));
             }
         }
     }

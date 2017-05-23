@@ -4,6 +4,6 @@
 [assembly: AssemblyCompany("Status Controls")]
 [assembly: AssemblyProduct("SC.SimplSharp.Utilities")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
-[assembly: AssemblyVersion("1.0.0.*")]
-[assembly: AssemblyInformationalVersion("1.10.00")]
+[assembly: AssemblyVersion("2.0.42.49902")]
+[assembly: AssemblyInformationalVersion("2.00.00")]
 

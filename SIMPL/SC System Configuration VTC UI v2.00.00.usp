@@ -1,0 +1,163 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#USER_SIMPLSHARP_LIBRARY "SCConfigLib"
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+ ANALOG_INPUT VtcType,CommunicationsType,Enabled;
+ STRING_INPUT Port[5],IpAddress[64],Monitor1Input[3],Monitor2Input[3],CameraOutput[3],ContentOutput[3],NumberOfMonitors[2];
+
+ ANALOG_OUTPUT VtcTypeOut,CommunicationsTypeOut,EnabledOut;
+ STRING_OUTPUT PortOut,IpAddressOut,Monitor1InputOut,Monitor2InputOut,CameraOutputOut,ContentOutputOut,NumberOfMonitorsOut;
+
+/*******************************************************************************************
+  SOCKETS
+*******************************************************************************************/
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+/*******************************************************************************************
+  Structure Definitions
+*******************************************************************************************/
+/*******************************************************************************************
+  Global Variables
+*******************************************************************************************/
+VtcConfigurationUpdater configUpdater;
+/*******************************************************************************************
+  Functions
+*******************************************************************************************/
+FUNCTION Initialize()
+{
+	registerdelegate(configUpdater,UpdateVtcInformation,UpdateVtcInformationCallback);
+}
+
+callback FUNCTION UpdateVtcInformationCallback(VideoConference vtc, integer enabled)
+{
+	VtcTypeOut = vtc.Type;
+	CommunicationsTypeOut = vtc.CommunicationsType;
+	EnabledOut = enabled;
+	PortOut = itoa(vtc.Port);
+	IpAddressOut = vtc.IpAddress;
+	Monitor1InputOut = itoa(vtc.Monitor1Input);
+	Monitor2InputOut = itoa(vtc.Monitor2Input);
+	CameraOutputOut = itoa(vtc.CameraOutput);
+	ContentOutputOut = itoa(vtc.ContentOutput);
+	NumberOfMonitorsOut = itoa(vtc.NumberOfMonitors);
+}
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+change VtcType
+{
+	configUpdater.SetUshortValue("Type",VtcType);
+	VtcTypeOut = VtcType;
+}
+
+change CommunicationsType
+{
+	configUpdater.SetUshortValue("CommunicationsType",CommunicationsType);
+	CommunicationsTypeOut = CommunicationsType;
+}
+
+change Enabled
+{
+	ConfigUpdater.SetBoolValue("Enable",Enabled);
+	EnabledOut = Enabled;
+}
+
+change Port
+{
+	ConfigUpdater.SetUshortValue("Port",atoi(Port));
+	PortOut = Port;
+}
+
+change IpAddress
+{
+	ConfigUpdater.SetStringValue("IpAddress",IpAddress);
+	IpAddressOut = IpAddress;
+}
+
+change Monitor1Input
+{
+	ConfigUpdater.SetUshortValue("Monitor1Input",atoi(Monitor1Input));
+	Monitor1InputOut = Monitor1Input;
+}
+
+change Monitor2Input
+{
+	ConfigUpdater.SetUshortValue("Monitor2Input",atoi(Monitor2Input));
+	Monitor2InputOut = Monitor2Input;
+}
+
+change CameraOutput
+{
+	ConfigUpdater.SetUshortValue("CameraOutput",atoi(CameraOutput));
+	CameraOutputOut = CameraOutput;
+}
+
+change ContentOutput
+{
+	ConfigUpdater.SetUshortValue("ContentOutput",atoi(ContentOutput));
+	ContentOutputOut = ContentOutput;
+}
+
+change NumberOfMonitors
+{
+	ConfigUpdater.SetUshortValue("NumberOfMonitors",atoi(NumberOfMonitors));
+	NumberOfMonitorsOut = NumberOfMonitors;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+    WaitForInitializationComplete();
+    Initialize();
+}
+
+

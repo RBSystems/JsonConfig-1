@@ -1,91 +1,88 @@
-﻿namespace SC.SimplSharp.Utilities
+﻿using System;
+using Crestron.SimplSharp;
+using Newtonsoft.Json.Linq;
+
+namespace SC.SimplSharp.Utilities
 {
-    public class GeneralConfigurationUpdater
+    public class EnvironmentConfigurationUpdater : BasicConfigurationUpdaterBase
     {
-        public delegate void UpdateLightingInformationDelegate(ushort enabled);
-        public delegate void UpdateShadesInformationDelegate(ushort enabled);
-        public delegate void UpdateAutoswitchInformationDelegate(ushort enabled);
+        public delegate void UpdateEnvironmentInformationDelegate(
+            ushort lightingEnabled, ushort shadesEnabled, ushort autoswitchEnabled);
 
-        public UpdateAutoswitchInformationDelegate UpdateAutoSwitchInformation {get; set;}
-        public UpdateShadesInformationDelegate UpdateShadesInformation { get; set; }
-        public UpdateLightingInformationDelegate UpdateLightingInformation { get; set; }
+        public UpdateEnvironmentInformationDelegate UpdateEnvironmentInformation { get; set; }
 
-        public GeneralConfigurationUpdater()
+        protected override void ConfigurationLoader_OnConfigurationSaved()
         {
-            ConfigurationLoader.OnConfigurationLoaded += ConfigurationLoader_OnConfigurationLoaded;
-            ConfigurationLoader.OnConfigurationSaved += ConfigurationLoader_OnConfigurationSaved;
+            Info = JObject.FromObject(ConfigurationLoader.Config.Environment);
+
+            base.ConfigurationLoader_OnConfigurationSaved();
         }
 
-        void ConfigurationLoader_OnConfigurationSaved()
+        protected override void ConfigurationLoader_OnConfigurationLoaded()
         {
-            UpdateSPlusInformation();
+            Info = JObject.FromObject(ConfigurationLoader.Config.Environment);
+
+            base.ConfigurationLoader_OnConfigurationLoaded();
         }
 
-        void ConfigurationLoader_OnConfigurationLoaded()
+        public override void SetStringValue(string property, string value)
         {
-            UpdateSPlusInformation();
-        }
-
-        public void UpdateLightingSetting(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            var currentValue = ConfigurationLoader.Config.Lighting ? 1 : 0;
-
-            if (value == currentValue) return;
-
-            ConfigurationLoader.Config.Lighting = value > 0;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateShadesSetting(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            var currentValue = ConfigurationLoader.Config.Shades ? 1 : 0;
-
-            if (value == currentValue) return;
-
-            ConfigurationLoader.Config.Shades = value > 0;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateAutoSwitchSetting(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            var currentValue = ConfigurationLoader.Config.AutoSwitch ? 1 : 0;
-
-            if (value == currentValue) return;
-
-            ConfigurationLoader.Config.AutoSwitch = value > 0;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        private void UpdateSPlusInformation()
-        {
-            if (UpdateAutoSwitchInformation != null)
+            try
             {
-                ushort value = ConfigurationLoader.Config.AutoSwitch ? (ushort) 1 : (ushort) 0;
+                InitializeInfo(ConfigurationLoader.Config.Environment);
 
-                UpdateAutoSwitchInformation(value);
+                Info[property] = value;
+
+                ConfigurationLoader.Config.Environment = SaveChanges<Environment>();
             }
-
-            if (UpdateShadesInformation != null)
+            catch (Exception ex)
             {
-                ushort value = ConfigurationLoader.Config.Shades ? (ushort)1 : (ushort)0;
-
-                UpdateShadesInformation(value);
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
             }
+        }
 
-            if (UpdateLightingInformation != null)
+        public override void SetBoolValue(string property, ushort value)
+        {
+            try
             {
-                ushort value = ConfigurationLoader.Config.Lighting ? (ushort)1 : (ushort)0;
+                InitializeInfo(ConfigurationLoader.Config.Environment);
 
-                UpdateLightingInformation(value);
+                Info[property] = value > 0;
+
+                ConfigurationLoader.Config.Environment = SaveChanges<Environment>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        public override void SetUshortValue(string property, ushort value)
+        {
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Environment);
+
+                Info[property] = value;
+
+                ConfigurationLoader.Config.Environment = SaveChanges<Environment>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        protected override void UpdateSplusInformation()
+        {
+            var handler = UpdateEnvironmentInformation;
+
+            var lightingEnabled = (bool) Info["Lighting"] ? (ushort) 1 : (ushort) 0;
+            var shadesEnabled = (bool)Info["Shades"] ? (ushort)1 : (ushort)0;
+            var autoswitchEnabled = (bool)Info["AutoSwitch"] ? (ushort)1 : (ushort)0;
+            if (handler != null)
+            {
+                handler(lightingEnabled, shadesEnabled, autoswitchEnabled);
             }
         }
     }

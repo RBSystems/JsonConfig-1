@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Crestron.SimplSharp;
 using SC.SimplSharp.Utilities;
 using SCRoutingLib.Model;
@@ -39,23 +38,12 @@ namespace SCRoutingLib
             Listener.Refresh();
         }
 
-        public override void RegisterComponentListener(IComponentListener requester)
-        {
-            Listener.RouteChanged -= Listener_RouteChanged;
-            Listener.SyncChanged -= Listener_SyncChanged;
-
-            base.RegisterComponentListener(requester);
-
-            Listener.RouteChanged += Listener_RouteChanged;
-            Listener.SyncChanged += Listener_SyncChanged;
-        }
-
-        private void Listener_SyncChanged(ushort input, bool sync)
+        protected override void Listener_SyncChanged(ushort input, bool sync)
         {
             
         }
 
-        private void Listener_RouteChanged(Route route)
+        protected override void Listener_RouteChanged(Route route)
         {
             var handler = UpdateOutputStatusText;
 

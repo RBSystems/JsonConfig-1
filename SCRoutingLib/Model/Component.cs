@@ -13,8 +13,19 @@ namespace SCRoutingLib
 
         public virtual void RegisterComponentListener(IComponentListener requester)
         {
+            if (requester == Listener) return;
+
+            Listener.RouteChanged -= Listener_RouteChanged;
+            Listener.SyncChanged -= Listener_SyncChanged;
+
             Listener = requester;
+
+            Listener.RouteChanged += Listener_RouteChanged;
+            Listener.SyncChanged += Listener_SyncChanged;
         }
+
+        protected abstract void Listener_RouteChanged(Route route);
+        protected abstract void Listener_SyncChanged(ushort input, bool sync);
 
         public abstract void Refresh();
 

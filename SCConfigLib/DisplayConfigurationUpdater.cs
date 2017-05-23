@@ -1,110 +1,117 @@
-﻿using Crestron.SimplSharp;
-using Crestron.SimplSharp.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using Crestron.SimplSharp;
+using Newtonsoft.Json.Linq;
 
 namespace SC.SimplSharp.Utilities
 {
     
 
-    public class DisplayConfigurationUpdater
+    public class DisplayConfigurationUpdater:ListConfigurationUpdaterBase
     {
-        private int _maxNumberOfDisplays;
+        public delegate void UpdateDisplayInformationDelegate(ushort index, Display item);
 
-        public UpdateDisplayInformationDelegate UpdateDisplayInformation { get; set; }
-        public UpdateDisplayCountDelegate UpdateDisplayCount { get; set; }
-        public UpdateSelectedDisplayDelegate UpdateSelectedDisplay { get; set; }
-
-        public delegate void UpdateSelectedDisplayDelegate(Display display);
-        public delegate void UpdateDisplayInformationDelegate(ushort id, Display display);
-        public delegate void UpdateDisplayCountDelegate(ushort count);
+        public delegate void UpdateSelectedItemDelegate(Display item);
 
         public DisplayConfigurationUpdater()
         {
-            _maxNumberOfDisplays = 10;
-            ConfigurationLoader.OnConfigurationLoaded += ConfigurationLoader_OnConfigurationLoaded;
-            ConfigurationLoader.OnConfigurationSaved += ConfigurationLoader_OnConfigurationSaved;
+            MaxArrayLength = 16;
         }
 
-        void ConfigurationLoader_OnConfigurationSaved()
+        public UpdateSelectedItemDelegate UpdateSelectedItem { get; set; }
+        public UpdateDisplayInformationDelegate UpdateDisplayInformation { get; set; }
+
+        public void Initialize(ushort maxDisplays)
         {
-            UpdateSPlusDisplayInformation();
+            MaxArrayLength = maxDisplays;
         }
 
-        private void ConfigurationLoader_OnConfigurationLoaded()
+        protected override void ConfigurationLoader_OnConfigurationLoaded()
         {
-            UpdateSPlusDisplayCount((ushort) ConfigurationLoader.Config.Displays.Count);
+            Info = JArray.FromObject(ConfigurationLoader.Config.Displays);
 
-            UpdateSPlusDisplayInformation();
+            base.ConfigurationLoader_OnConfigurationLoaded();
         }
 
-        public void Initialize(int maxNumberOfDisplays)
+        protected override void ConfigurationLoader_OnConfigurationSaved()
         {
-            _maxNumberOfDisplays = maxNumberOfDisplays;
+            Info = JArray.FromObject(ConfigurationLoader.Config.Displays);
+
+            base.ConfigurationLoader_OnConfigurationSaved();
         }
 
         public void AddDisplay(Display itemToAdd)
         {
-            if (ConfigurationLoader.Config.Displays.Count <= _maxNumberOfDisplays)
+            try
             {
-                ConfigurationLoader.Config.Displays.Add(itemToAdd);
-                ConfigurationLoader.Config.NumberOfDisplays = ConfigurationLoader.Config.Displays.Count;
+                InitializeInfo(ConfigurationLoader.Config.Displays);
+
+                AddToArray(itemToAdd);
+
+                ConfigurationLoader.Config.Displays = SaveChanges<List<Display>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
+
+                UpdateSPlusInformation();
             }
-
-            ConfigurationLoader.ConfigChanged = true;
-
-            UpdateSPlusDisplayCount( (ushort)ConfigurationLoader.Config.Displays.Count);
-            UpdateSPlusDisplayInformation();
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error adding Display. {0}", ex);
+            }
         }
 
         public void RemoveDisplay(ushort index)
         {
-            ConfigurationLoader.Config.Displays.RemoveAt(index - 1);
-            ConfigurationLoader.Config.NumberOfDisplays = ConfigurationLoader.Config.Displays.Count;
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Displays);
 
-            ConfigurationLoader.ConfigChanged = true;
+                RemoveFromArray(index);
 
-            UpdateSPlusDisplayCount((ushort) ConfigurationLoader.Config.Displays.Count);
-            UpdateSPlusDisplayInformation();
+                ConfigurationLoader.Config.Displays = SaveChanges<List<Display>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
 
+                UpdateSPlusInformation();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error removing Display. {0}", ex);
+            }
         }
 
         public void UpdateDisplay(ushort index, Display itemToUpdate)
         {
-            ConfigurationLoader.Config.Displays[index - 1] = itemToUpdate;
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Displays);
 
-            ConfigurationLoader.ConfigChanged = true;
+                UpdateEntry(index, itemToUpdate);
 
-            UpdateSPlusDisplayInformation();
-        }
+                ConfigurationLoader.Config.Displays = SaveChanges<List<Display>>();
+                ConfigurationLoader.Config.NumberOfInputs = Info.Count;
 
-        public void SaveDisplayConfiguration()
-        {
-            ConfigurationLoader.SaveConfigurationFile(ConfigurationLoader.FileName);
+                UpdateSPlusInformation();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error updating Display. {0}", ex);
+            }
         }
 
         public void GetDisplay(ushort index)
         {
-            if (UpdateSelectedDisplay != null)
+            if (UpdateSelectedItem != null)
             {
-                UpdateSelectedDisplay(ConfigurationLoader.Config.Displays[index -1]);
+                UpdateSelectedItem(GetObject<Display>(Info[index - 1]));
             }
         }
 
-        private void UpdateSPlusDisplayCount(ushort count)
+        protected override void UpdateSPlusInformation()
         {
-            if (UpdateDisplayCount != null)
-            {
-                UpdateDisplayCount(count);
-            }
-        }
+            if (UpdateDisplayInformation == null) return;
 
-        private void UpdateSPlusDisplayInformation()
-        {
-            for (var i = 0; i < ConfigurationLoader.Config.Displays.Count; i++)
+            for (ushort i = 0; i < Info.Count; i++)
             {
-                if (UpdateDisplayInformation != null)
-                {
-                    UpdateDisplayInformation((ushort)(i + 1), ConfigurationLoader.Config.Displays[i]);
-                }
+                UpdateDisplayInformation((ushort) (i + 1), GetObject<Display>(Info[i]));
             }
         }
     }

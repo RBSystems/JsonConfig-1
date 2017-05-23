@@ -1,89 +1,84 @@
-﻿namespace SC.SimplSharp.Utilities
+﻿using System;
+using Crestron.SimplSharp;
+using Newtonsoft.Json.Linq;
+
+namespace SC.SimplSharp.Utilities
 {
-    public class DspConfigurationUpdater
+    public class DspConfigurationUpdater:BasicConfigurationUpdaterBase
     {
-        public delegate void UpdateDspInformationDelegate(Dsp information, ushort audioConferencingValue);
+        public delegate void UpdateDspInformationDelegate(Dsp information, ushort AudioConference);
 
         public UpdateDspInformationDelegate UpdateDspInformation { get; set; }
 
-        public DspConfigurationUpdater()
+        protected override void ConfigurationLoader_OnConfigurationSaved()
         {
-            ConfigurationLoader.OnConfigurationLoaded += ConfigurationLoader_OnConfigurationLoaded;
-            ConfigurationLoader.OnConfigurationSaved += ConfigurationLoader_OnConfigurationSaved;
+            Info = JObject.FromObject(ConfigurationLoader.Config.Dsp);
+
+            base.ConfigurationLoader_OnConfigurationSaved();
         }
 
-        void ConfigurationLoader_OnConfigurationSaved()
+        protected override void ConfigurationLoader_OnConfigurationLoaded()
         {
-            UpdateSplusDspInformation();
+            Info = JObject.FromObject(ConfigurationLoader.Config.Dsp);
+
+            base.ConfigurationLoader_OnConfigurationLoaded();
         }
 
-        void ConfigurationLoader_OnConfigurationLoaded()
+        public override void SetStringValue(string property, string value)
         {
-            UpdateSplusDspInformation();
-        }
-
-        public void UpdateDspType(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Dsp.Type) return;
-
-            ConfigurationLoader.Config.Dsp.Type = value;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateDspCommunicationsType(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Dsp.CommunicationsType) return;
-
-            ConfigurationLoader.Config.Dsp.CommunicationsType = value;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateDspPort(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Dsp.Port) return;
-                
-            ConfigurationLoader.Config.Dsp.Port = value;
-            
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateDspIpAddress(string value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            if (value == ConfigurationLoader.Config.Dsp.IpAddress) return;
-            
-            ConfigurationLoader.Config.Dsp.IpAddress = value;
-            
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        public void UpdateAudioConferencing(ushort value)
-        {
-            if (ConfigurationLoader.Config == null) return;
-
-            var currentValue = ConfigurationLoader.Config.Features.AudioConference ? 1 : 0;
-
-            if (value == currentValue) return;
-
-            ConfigurationLoader.Config.Features.AudioConference = value > 0;
-
-            ConfigurationLoader.ConfigChanged = true;
-        }
-
-        private void UpdateSplusDspInformation()
-        {
-            if (UpdateDspInformation != null)
+            try
             {
-                UpdateDspInformation(ConfigurationLoader.Config.Dsp, ConfigurationLoader.Config.Features.AudioConference ? (ushort) 1 : (ushort) 0);
+                InitializeInfo(ConfigurationLoader.Config.Dsp);
+
+                Info[property] = value;
+
+                ConfigurationLoader.Config.Dsp = SaveChanges<Dsp>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        public override void SetBoolValue(string property, ushort value)
+        {
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Dsp);
+
+                Info[property] = value > 0;
+
+                ConfigurationLoader.Config.Dsp = SaveChanges<Dsp>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        public override void SetUshortValue(string property, ushort value)
+        {
+            try
+            {
+                InitializeInfo(ConfigurationLoader.Config.Dsp);
+
+                Info[property] = value;
+
+                ConfigurationLoader.Config.Dsp = SaveChanges<Dsp>();
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Error("Error converting value: {0} Exception: {1}", property, ex);
+            }
+        }
+
+        protected override void UpdateSplusInformation()
+        {
+            var handler = UpdateDspInformation;
+
+            if (handler != null)
+            {
+                handler(GetObject<Dsp>(Info), (bool) Info["AudioConference"] ? (ushort) 1 : (ushort) 0);
             }
         }
     }
