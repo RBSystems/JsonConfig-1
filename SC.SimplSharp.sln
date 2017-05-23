@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCConfigLib", "SCConfigLib\SCConfigLib.csproj", "{6D78E91C-1A98-4C90-841B-388BAA53DC5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCRoutingLib", "SCRoutingLib\SCRoutingLib.csproj", "{B879ED88-8F6E-45A7-AB91-E9B0AD2C0464}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCUtilitiesLib", "SCUtilitiesLib\SCUtilitiesLib.csproj", "{796B74BA-2F98-447C-B36E-BC58B786A503}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D78E91C-1A98-4C90-841B-388BAA53DC5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D78E91C-1A98-4C90-841B-388BAA53DC5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D78E91C-1A98-4C90-841B-388BAA53DC5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D78E91C-1A98-4C90-841B-388BAA53DC5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B879ED88-8F6E-45A7-AB91-E9B0AD2C0464}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B879ED88-8F6E-45A7-AB91-E9B0AD2C0464}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B879ED88-8F6E-45A7-AB91-E9B0AD2C0464}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B879ED88-8F6E-45A7-AB91-E9B0AD2C0464}.Release|Any CPU.Build.0 = Release|Any CPU
+		{796B74BA-2F98-447C-B36E-BC58B786A503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{796B74BA-2F98-447C-B36E-BC58B786A503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{796B74BA-2F98-447C-B36E-BC58B786A503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{796B74BA-2F98-447C-B36E-BC58B786A503}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
