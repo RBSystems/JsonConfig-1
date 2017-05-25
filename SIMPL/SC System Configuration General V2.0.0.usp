@@ -43,12 +43,13 @@ Comments:
 *******************************************************************************************/
 // #CRESTRON_LIBRARY ""
 // #USER_LIBRARY ""
-#USER_SIMPLSHARP_LIBRARY "SCConfigLib"
+#USER_SIMPLSHARP_LIBRARY "SCConfigSPlus"
 /*******************************************************************************************
   DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
   (Uncomment and declare inputs and outputs as needed)
 *******************************************************************************************/
- ANALOG_OUTPUT LightingEnabled,ShadesEnabled,AutoswitchEnabled;
+ STRING_INPUT FileName[128];
+ ANALOG_OUTPUT LightingEnabled,ShadesEnabled;
 
 /*******************************************************************************************
   SOCKETS
@@ -78,8 +79,7 @@ Comments:
   Note:  Be sure to initialize all declared STRING variables as needed
          For example, in Function Main: myString = "";
 *******************************************************************************************/
-
- EnvironmentConfigurationUpdater generalUpdater;
+ EnvironmentConfigurationReader configReader;
 /*******************************************************************************************
   Functions
   (Add any additional functions here)
@@ -88,47 +88,14 @@ Comments:
 *******************************************************************************************/
 FUNCTION Initialize()
 {
-    RegisterDelegate(generalUpdater,UpdateEnvironmentInformation,UpdateEnvironmentInformationcallback);
+    Registerevent(configReader,OnConfigurationChanged,UpdateEnvironmentInformationHandler);
 }
  
-callback Function UpdateEnvironmentInformationcallback(integer lights, integer shades, integer autoswitch)
+eventhandler UpdateEnvironmentInformationHandler(EnvironmentConfigurationReader reader, EnvironmentControls config)
 {
-	LightingEnabled = lights;
-	ShadesEnabled = shades;
-	AutoswitchEnabled = autoswitch;
+ 	LightingEnabled = config.Lighting;
+	ShadesEnabled = config.Shades;
 }
-
-/*
-Function MyFunction1()
-{
-    // TODO:  Add local variable declarations here
-
-    // TODO:  Add code here
-}
-*/
-
-/*
-Integer_Function MyIntFunction1()
-{
-    // TODO:  Add local variable declarations here
-
-    // TODO:  Add code here
-
-    Return (0);
-}
-*/
-
-/*
-String_Function MyStrFunction1()
-{
-    // TODO:  Add local variable declarations here
-
-    // TODO:  Add code here
-
-    Return ("");
-}
-*/
-
 /*******************************************************************************************
   Event Handlers
   (Uncomment and declare additional event handlers as needed)
@@ -144,6 +111,10 @@ Function Main()
     WaitForInitializationComplete();
 
 	Initialize();
+
+	configReader.Initialize(fileName);
+
+	configReader.ReadSettings();	
 }
 
 

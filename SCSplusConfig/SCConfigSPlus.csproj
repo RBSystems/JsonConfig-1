@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6D78E91C-1A98-4C90-841B-388BAA53DC5A}</ProjectGuid>
+    <ProjectGuid>{F4D9C405-9724-4DB6-9829-809C909CE8A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SCConfigLib</RootNamespace>
-    <AssemblyName>SCConfigLib</AssemblyName>
+    <RootNamespace>SCConfigSPlus</RootNamespace>
+    <AssemblyName>SCConfigSPlus</AssemblyName>
     <ProjectTypeGuids>{0B4745B0-194B-4BB6-8E21-E9057CA92500};{4D628B5B-2FBC-4AA6-8C16-197242AEB884};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PlatformFamilyName>WindowsCE</PlatformFamilyName>
     <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
@@ -25,8 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>DEBUG;TRACE;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <FileAlignment>512</FileAlignment>
@@ -50,19 +49,19 @@
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json.Compact, Version=3.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\ProgramData\crestron\SDK\Newtonsoft.Json.Compact.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\ProgramData\Crestron\SDK\Newtonsoft.Json.Compact.dll</HintPath>
     </Reference>
     <Reference Include="SimplSharpCustomAttributesInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpCustomAttributesInterface.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpCustomAttributesInterface.dll</HintPath>
     </Reference>
     <Reference Include="SimplSharpHelperInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpHelperInterface.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpHelperInterface.dll</HintPath>
     </Reference>
     <Reference Include="SimplSharpReflectionInterface, Version=1.0.5583.25238, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpReflectionInterface.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpReflectionInterface.dll</HintPath>
     </Reference>
     <Reference Include="SSMonoIOLibrary, Version=1.0.0.9723, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -73,19 +72,29 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationReader.cs" />
-    <Compile Include="ConfigurationWriter.cs" />
-    <Compile Include="ISettingsReader.cs" />
-    <Compile Include="ISettingsWriter.cs" />
+    <Compile Include="EnvironmentConfigurationReader.cs" />
+    <Compile Include="EnvironmentConfigurationWriter.cs" />
+    <Compile Include="Readers\JsonSettingsReader.cs" />
+    <Compile Include="JSON\Camera.cs" />
+    <Compile Include="JSON\Configuration.cs" />
+    <Compile Include="JSON\Display.cs" />
+    <Compile Include="JSON\DSP.cs" />
+    <Compile Include="JSON\EnvironmentControls.cs" />
+    <Compile Include="JSON\Source.cs" />
+    <Compile Include="JSON\Switcher.cs" />
+    <Compile Include="JSON\VideoConference.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SourceConfigurationReader.cs" />
+    <Compile Include="Writers\JsonSettingsWriter.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SCConfigLib\SCConfigLib.csproj">
+      <Project>{6D78E91C-1A98-4C90-841B-388BAA53DC5A}</Project>
+      <Name>SCConfigLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.DayStamp.Increment" BuildVersion_UseGlobalSettings="True" />
-    </VisualStudio>
-  </ProjectExtensions>
   <PropertyGroup>
     <PostBuildEvent>rem  S# preparation will execute after these operations</PostBuildEvent>
   </PropertyGroup>

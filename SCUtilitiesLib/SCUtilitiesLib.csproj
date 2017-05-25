@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CallProgressDecoding.cs" />
+    <Compile Include="IpTable.cs" />
     <Compile Include="ProgramComments.cs" />
     <Compile Include="ProgramInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,0 +1,69 @@
+{
+  "NumberOfDisplays": 1,
+  "NumberOfInputs": 1,
+  "NumberOfCameras": 1,
+  "EnvironmentControls": {
+    "Shades": 1,
+    "Lighting": 1
+  },
+  "Displays": [
+    {
+      "Name": "Display 1",
+      "Type": 1,
+      "CommunicationsType": 1,
+      "IpAddress": "",
+      "Port": 0,
+      "Output": 65
+    }
+  ],
+  "Sources": [
+    {
+      "Input": 1,
+      "Enabled": 1,
+      "Name": "Source 1",
+      "ShareableSource": false,
+      "EnableSyncDetect": false
+    },
+	{
+      "Input": 2,
+      "Enabled": 1,
+      "Name": "Source 2",
+      "ShareableSource": 1,
+      "EnableSyncDetect": 1
+    }
+  ],
+  "Switcher": {
+    "Type": 2,
+    "IpAddress": null,
+    "EnableSyncDetection": true
+  },
+  "Dsp": {
+    "Type": 1,
+    "CommunicationsType": 1,
+    "IpAddress": null,
+    "Port": 0,
+    "AudioConference": true
+  },
+  "VideoConference": {
+    "Enable": true,
+    "Type": 1,
+    "CommunicationsType": 1,
+    "ContentOutput": 1,
+    "CameraOutput": 2,
+    "NumberOfMonitors": 2,
+    "Monitor1Input": 1,
+    "Monitor2Input": 2,
+    "IpAddress": "127.0.0.1",
+    "Port": 22
+  },
+  "Cameras": [
+    {
+      "Type": 1,
+      "Name": "Test",
+      "Input": 1,
+      "ControlType": 1,
+      "IpAddress": "",
+      "Port": 0
+    }
+  ]
+}
